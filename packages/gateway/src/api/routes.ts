@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import QRCode from 'qrcode';
 import { StorageService } from '../services';
 import { AgentRegistration, PairingRequest } from '../models';
 
@@ -152,4 +153,100 @@ export async function registerRoutes(
       timestamp: Date.now(),
     });
   });
+
+  /**
+   * GET /api/qrcode/:pairing_code - Generate QR code for pairing
+   */
+  fastify.get<{ Params: { pairing_code: string } }>(
+    '/api/qrcode/:pairing_code',
+    async (request, reply) => {
+      try {
+        const { pairing_code } = request.params;
+
+        // Validate pairing code format
+        if (!/^\d{6}$/.test(pairing_code)) {
+          return reply.status(400).send({
+            success: false,
+            error: 'Invalid pairing code format. Must be 6 digits.',
+          });
+        }
+
+        // Generate QR code data
+        const gatewayUrl = process.env.GATEWAY_URL || `http://localhost:${process.env.PORT || 3000}`;
+        const qrData = JSON.stringify({
+          gateway_url: gatewayUrl,
+          pairing_code: pairing_code,
+          timestamp: Date.now(),
+        });
+
+        // Generate QR code as data URL
+        const qrCodeDataUrl = await QRCode.toDataURL(qrData, {
+          width: 400,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF',
+          },
+        });
+
+        return reply.status(200).send({
+          success: true,
+          pairing_code,
+          qr_code: qrCodeDataUrl,
+          gateway_url: gatewayUrl,
+        });
+      } catch (error) {
+        fastify.log.error(error);
+        return reply.status(500).send({
+          success: false,
+          error: 'Failed to generate QR code',
+        });
+      }
+    }
+  );
+
+  /**
+   * GET /api/qrcode/:pairing_code/image - Generate QR code as image
+   */
+  fastify.get<{ Params: { pairing_code: string } }>(
+    '/api/qrcode/:pairing_code/image',
+    async (request, reply) => {
+      try {
+        const { pairing_code } = request.params;
+
+        // Validate pairing code format
+        if (!/^\d{6}$/.test(pairing_code)) {
+          return reply.status(400).send('Invalid pairing code format');
+        }
+
+        // Generate QR code data
+        const gatewayUrl = process.env.GATEWAY_URL || `http://localhost:${process.env.PORT || 3000}`;
+        const qrData = JSON.stringify({
+          gateway_url: gatewayUrl,
+          pairing_code: pairing_code,
+          timestamp: Date.now(),
+        });
+
+        // Generate QR code as PNG buffer
+        const qrCodeBuffer = await QRCode.toBuffer(qrData, {
+          type: 'png',
+          width: 400,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF',
+          },
+        });
+
+        return reply
+          .status(200)
+          .header('Content-Type', 'image/png')
+          .header('Cache-Control', 'public, max-age=300') // Cache for 5 minutes
+          .send(qrCodeBuffer);
+      } catch (error) {
+        fastify.log.error(error);
+        return reply.status(500).send('Failed to generate QR code');
+      }
+    }
+  );
 }
