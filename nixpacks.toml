@@ -1,0 +1,12 @@
+# Nixpacks configuration for Railway deployment
+
+[phases.setup]
+
+[phases.install]
+cmds = ["npm install -g pnpm", "pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["cd packages/gateway && pnpm run build"]
+
+[start]
+cmd = "cd packages/gateway && pnpm start"

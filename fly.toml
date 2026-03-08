@@ -1,0 +1,64 @@
+# Fly.io App Configuration
+
+app = "linkgate-gateway"
+primary_region = "sin"  # Singapore - 选择离你用户最近的区域
+
+[build]
+  builder = "heroku/buildpacks:20"
+
+[build.args]
+  NODE_VERSION = "18"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  LOG_LEVEL = "info"
+
+[deploy]
+  strategy = "rolling"
+  release_command = "echo 'Deploying LinkGate Gateway...'"
+
+[services]
+  [services.internal_port]
+    port = 3000
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 100
+    soft_limit = 80
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+    force_https = true
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "10s"
+    restart_limit = 3
+
+  [[services.http_checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    restart_limit = 3
+    method = "get"
+    path = "/api/health"
+    protocol = "http"
+    tls_skip_verify = false
+
+[mounts]
+  source = "redis_data"
+  destination = "/data"
+
+[[regions]]
+  name = "sin"  # Singapore
+  [[regions]]
+  name = "nrt"  # Tokyo
+  [[regions]]
+  name = "lax"  # Los Angeles

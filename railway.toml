@@ -1,0 +1,11 @@
+# Railway Deployment Configuration
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd packages/gateway && pnpm start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
