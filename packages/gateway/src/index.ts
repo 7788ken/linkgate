@@ -1,8 +1,9 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import { StorageService } from './services';
-import { registerRoutes } from './api';
+import websocket from '@fastify/websocket';
+import { StorageService, WebSocketManager } from './services';
+import { registerRoutes, registerWebSocketRoutes } from './api';
 
 /**
  * Create and configure Fastify server
@@ -32,12 +33,27 @@ export async function createServer() {
     timeWindow: '1 minute',
   });
 
-  // Initialize storage service
+  // Register WebSocket
+  await fastify.register(websocket);
+
+  // Initialize services
   const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
   const storage = new StorageService(redisUrl);
+  const wsManager = new WebSocketManager();
 
   // Register API routes
   await registerRoutes(fastify, storage);
+
+  // Register WebSocket routes
+  await registerWebSocketRoutes(fastify, wsManager);
+
+  // Periodic cleanup of stale WebSocket connections
+  setInterval(() => {
+    const cleaned = wsManager.cleanupStaleConnections();
+    if (cleaned > 0) {
+      fastify.log.info(`Cleaned up ${cleaned} stale WebSocket connections`);
+    }
+  }, 60000); // Every minute
 
   // Graceful shutdown
   const closeSignals = ['SIGINT', 'SIGTERM'];
