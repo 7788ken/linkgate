@@ -18,36 +18,39 @@ LinkGate 是一个公益性质的设备配对网关系统,用于本地电脑/服
 
 ## 快速开始
 
-### Gateway 服务器部署
+👉 **[5 分钟快速启动指南](./QUICKSTART.md)**
+
+### 1. 安装依赖
 
 ```bash
-# 使用 Docker 部署
-docker run -d \
-  -p 3000:3000 \
-  -e REDIS_URL=redis://localhost:6379 \
-  -e JWT_SECRET=your-secret \
-  linkgate/gateway:latest
+# 安装 pnpm (如果还没安装)
+npm install -g pnpm
+
+# 安装项目依赖
+pnpm install
 ```
 
-### Agent 客户端使用
+### 2. 启动服务
 
 ```bash
-# 一键注册
-curl -X POST https://gateway.example.com/register \
+# 启动 Redis
+docker-compose up -d redis
+
+# 启动 Gateway (新终端)
+cd packages/gateway && pnpm run dev
+
+# 注册 Agent (新终端)
+cd packages/agent && pnpm run dev register -g http://localhost:3000 -p 8080
+```
+
+### 3. 配对连接
+
+获取配对码后,使用 API 或 SDK 进行配对:
+
+```bash
+curl -X POST http://localhost:3000/api/pair \
   -H "Content-Type: application/json" \
-  -d '{"port": 8080, "name": "MyHomePC"}'
-
-# 返回配对码: 847291
-```
-
-### 移动端 APP 集成
-
-```typescript
-// 用户输入配对码
-const result = await gateway.pair('847291');
-
-// 获取 agent 信息并建立连接
-await connectToAgent(result.agent_info);
+  -d '{"pairing_code":"847291","device_id":"mobile-123"}'
 ```
 
 ## 文档
@@ -60,7 +63,17 @@ await connectToAgent(result.agent_info);
 
 ## 项目状态
 
-🚧 **规划阶段** - 目前处于架构设计和需求分析阶段
+✅ **MVP 阶段完成** - Gateway API 和 Agent CLI 已可用
+
+### 已实现功能
+
+- ✅ Gateway HTTP API (注册/配对/心跳/健康检查)
+- ✅ Redis 临时存储 (TTL 自动过期)
+- ✅ Agent CLI 工具 (register/heartbeat/status/unregister)
+- ✅ 配对码机制 (6 位数字,一次性使用)
+- ✅ 单元测试框架
+- ✅ Docker 部署配置
+- ✅ Monorepo 架构 (pnpm workspaces)
 
 ## 开发路线图
 
@@ -83,15 +96,27 @@ await connectToAgent(result.agent_info);
 
 ## 技术栈
 
-### 推荐方案 (轻量级)
-- **后端**: Node.js + Express/Fastify
-- **通信**: WebSocket (Socket.IO)
-- **数据库**: Redis
-- **部署**: Docker + Nginx
+### 当前实现 (MVP)
 
-### 替代方案
-- Go/Rust (高性能场景)
-- WebRTC (P2P 优先场景)
+- **运行时**: Node.js 18+ (LTS)
+- **语言**: TypeScript 5.x
+- **框架**: Fastify 4.x (高性能 HTTP 服务器)
+- **数据库**: Redis (临时存储, TTL 自动过期)
+- **包管理**: pnpm workspaces
+- **测试**: Jest + Supertest
+- **代码规范**: ESLint + Prettier
+- **部署**: Docker + Docker Compose
+
+### 目录结构
+
+```
+linkgate/
+├── packages/
+│   ├── gateway/     # Gateway 服务器 (Fastify + Redis)
+│   └── agent/       # Agent CLI 客户端
+├── docs/            # 文档 (zh/en)
+└── docker/          # Docker 配置
+```
 
 ## 贡献指南
 
