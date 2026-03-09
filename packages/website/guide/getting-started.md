@@ -1,42 +1,42 @@
-# 快速开始
+# Quick Start
 
-本指南将帮助你在 5 分钟内启动 LinkGate。
+This guide will help you get started with LinkGate in 5 minutes.
 
-## 前置要求
+## Prerequisites
 
-- Node.js 18+ (推荐使用 LTS 版本)
+- Node.js 18+ (LTS version recommended)
 - pnpm 8+
-- Redis 服务器 (用于临时存储)
-- Docker (可选,用于本地 Redis)
+- Redis server (for temporary storage)
+- Docker (optional, for local Redis)
 
-## 安装步骤
+## Installation Steps
 
-### 1. 克隆项目
+### 1. Clone the Project
 
 ```bash
 git clone https://github.com/7788ken/linkgate.git
 cd linkgate
 ```
 
-### 2. 安装依赖
+### 2. Install Dependencies
 
 ```bash
-# 安装 pnpm (如果还没安装)
+# Install pnpm (if not already installed)
 npm install -g pnpm
 
-# 安装项目依赖
+# Install project dependencies
 pnpm install
 ```
 
-### 3. 启动 Redis
+### 3. Start Redis
 
-使用 Docker 启动 Redis:
+Start Redis using Docker:
 
 ```bash
 docker-compose up -d redis
 ```
 
-或者使用本地 Redis:
+Or use local Redis:
 
 ```bash
 # macOS
@@ -48,43 +48,43 @@ sudo apt-get install redis-server
 sudo systemctl start redis
 ```
 
-### 4. 启动 Gateway
+### 4. Start Gateway
 
 ```bash
-# 进入 gateway 目录
+# Navigate to gateway directory
 cd packages/gateway
 
-# 启动开发服务器
+# Start development server
 pnpm run dev
 ```
 
-Gateway 将在 `http://localhost:3000` 启动。
+Gateway will start at `http://localhost:3000`.
 
-### 5. 注册 Agent
+### 5. Register Agent
 
-在新的终端窗口中:
+In a new terminal window:
 
 ```bash
-# 进入 agent 目录
+# Navigate to agent directory
 cd packages/agent
 
-# 注册 Agent (连接到本地 Gateway,监听端口 8080)
+# Register Agent (connect to local Gateway, listen on port 8080)
 pnpm run dev register -g http://localhost:3000 -p 8080
 ```
 
-你将看到类似输出:
+You will see output like:
 
 ```
-✓ Agent 注册成功
-配对码: 847291
-有效期: 5分钟
+✓ Agent registered successfully
+Pairing code: 847291
+Valid for: 5 minutes
 
-使用此配对码在移动设备上完成配对
+Use this pairing code on your mobile device to complete pairing
 ```
 
-### 6. 配对连接
+### 6. Pairing Connection
 
-使用 HTTP API 进行配对:
+Use the HTTP API to pair:
 
 ```bash
 curl -X POST http://localhost:3000/api/pair \
@@ -92,7 +92,7 @@ curl -X POST http://localhost:3000/api/pair \
   -d '{"pairing_code":"847291","device_id":"mobile-123"}'
 ```
 
-成功响应:
+Success response:
 
 ```json
 {
@@ -100,60 +100,60 @@ curl -X POST http://localhost:3000/api/pair \
   "data": {
     "agent_id": "agent-abc123",
     "endpoint": "http://localhost:8080",
-    "message": "配对成功"
+    "message": "Pairing successful"
   }
 }
 ```
 
-## 验证安装
+## Verify Installation
 
-### 检查 Gateway 状态
+### Check Gateway Status
 
 ```bash
 curl http://localhost:3000/health
 ```
 
-### 检查 Agent 状态
+### Check Agent Status
 
 ```bash
 cd packages/agent
 pnpm run dev status
 ```
 
-## 下一步
+## Next Steps
 
-- 📖 [安装指南](/guide/installation) - 生产环境部署
-- 🔧 [Agent 配置](/guide/agent) - Agent 详细配置
-- 🌐 [Gateway API](/guide/api) - API 完整文档
-- 🚀 [部署指南](/guide/deployment) - 部署到生产环境
+- 📖 [Installation Guide](/guide/installation) - Production deployment
+- 🔧 [Agent Configuration](/guide/agent) - Detailed Agent configuration
+- 🌐 [Gateway API](/guide/api) - Complete API documentation
+- 🚀 [Deployment Guide](/guide/deployment) - Deploy to production
 
-## 常见问题
+## Common Issues
 
-### Redis 连接失败
+### Redis Connection Failed
 
-确保 Redis 正在运行:
+Ensure Redis is running:
 
 ```bash
-# 检查 Redis 状态
+# Check Redis status
 redis-cli ping
-# 应该返回: PONG
+# Should return: PONG
 ```
 
-### 端口被占用
+### Port Already in Use
 
-修改 Gateway 端口:
+Change Gateway port:
 
 ```bash
 PORT=3001 pnpm run dev
 ```
 
-### 配对码过期
+### Pairing Code Expired
 
-配对码默认 5 分钟过期,可以重新注册获取新配对码。
+Pairing codes expire after 5 minutes by default. Re-register to get a new code.
 
-## 获取帮助
+## Getting Help
 
-遇到问题? 加入社区:
+Having issues? Join the community:
 
 - [GitHub Discussions](https://github.com/7788ken/linkgate/discussions)
 - [Issue Tracker](https://github.com/7788ken/linkgate/issues)

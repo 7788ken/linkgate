@@ -1,64 +1,64 @@
-# 技术选型
+# Tech Stack
 
-本文档详细说明 LinkGate 的技术选型理由。
+This document explains the technical choices behind LinkGate.
 
-## 核心技术栈
+## Core Tech Stack
 
-### 运行时: Node.js 18+
+### Runtime: Node.js 18+
 
-**选择理由**:
+**Why Node.js?**
 
-1. **成熟的异步 I/O**: 天然适合 I/O 密集型应用
-2. **丰富的生态**: npm 生态系统,快速开发
-3. **跨平台**: 支持 Linux、macOS、Windows
-4. **LTS 支持**: 长期维护,安全更新
+1. **Mature Async I/O**: Naturally suited for I/O-intensive applications
+2. **Rich Ecosystem**: npm ecosystem for rapid development
+3. **Cross-Platform**: Support for Linux, macOS, Windows
+4. **LTS Support**: Long-term maintenance and security updates
 
-**为什么不是其他选项?**
+**Why not other options?**
 
-- **Go**: 学习曲线陡峭,生态不如 Node.js 成熟
-- **Rust**: 开发效率较低,不适合快速迭代
-- **Python**: 性能不如 Node.js,并发模型不够优雅
+- **Go**: Steeper learning curve, less mature ecosystem than Node.js
+- **Rust**: Lower development efficiency, not suitable for rapid iteration
+- **Python**: Lower performance than Node.js, less elegant concurrency model
 
-**版本选择**:
+**Version Choice:**
 
-- Node.js 18 LTS (支持到 2025 年 4 月)
-- V8 引擎优化,性能提升 20%
+- Node.js 18 LTS (supported until April 2025)
+- V8 engine optimizations, 20% performance improvement
 
-### 语言: TypeScript 5+
+### Language: TypeScript 5+
 
-**选择理由**:
+**Why TypeScript?**
 
-1. **类型安全**: 编译时类型检查,减少运行时错误
-2. **IDE 支持**: VSCode 原生支持,智能提示
-3. **重构友好**: 大型项目重构更容易
-4. **文档即代码**: 类型定义即文档
+1. **Type Safety**: Compile-time type checking reduces runtime errors
+2. **IDE Support**: Native VSCode support with intelligent suggestions
+3. **Refactoring Friendly**: Easier refactoring for large projects
+4. **Documentation as Code**: Type definitions serve as documentation
 
-**类型覆盖率**:
+**Type Coverage:**
 
 ```bash
-# 当前类型覆盖率: 95%+
+# Current type coverage: 95%+
 npm run type-coverage
 ```
 
-### Web 框架: Fastify 4+
+### Web Framework: Fastify 4+
 
-**对比分析**:
+**Comparison:**
 
-| 框架 | 性能 (req/sec) | TypeScript | 插件生态 | 学习曲线 |
-|------|---------------|------------|----------|---------|
-| Fastify | 76,835 | ✅ 原生 | 丰富 | 低 |
-| Express | 38,289 | ⚠️ 需要 @types | 非常丰富 | 很低 |
-| Koa | 50,433 | ⚠️ 需要 @types | 中等 | 中 |
-| NestJS | 35,112 | ✅ 原生 | 丰富 | 高 |
+| Framework | Performance (req/sec) | TypeScript | Plugin Ecosystem | Learning Curve |
+|-----------|----------------------|------------|------------------|----------------|
+| Fastify   | 76,835               | ✅ Native  | Rich             | Low            |
+| Express   | 38,289               | ⚠️ Requires @types | Very Rich  | Very Low       |
+| Koa       | 50,433               | ⚠️ Requires @types | Medium     | Medium         |
+| NestJS    | 35,112               | ✅ Native  | Rich             | High           |
 
-**选择 Fastify 的原因**:
+**Why Fastify?**
 
-1. **性能**: 比 Express 快 2 倍
-2. **Schema 验证**: 内置 JSON Schema 验证
-3. **插件系统**: 模块化设计
-4. **TypeScript**: 原生支持,无需额外配置
+1. **Performance**: 2x faster than Express
+2. **Schema Validation**: Built-in JSON Schema validation
+3. **Plugin System**: Modular design
+4. **TypeScript**: Native support, no extra configuration needed
 
-**Fastify 插件使用**:
+**Fastify Plugins Used:**
 
 ```typescript
 import fastifyCors from '@fastify/cors'
@@ -71,26 +71,26 @@ app
   .register(fastifyCompress)
 ```
 
-### 数据库: Redis 7+
+### Database: Redis 7+
 
-**选择理由**:
+**Why Redis?**
 
-1. **内存存储**: 配对码需要快速访问 (< 1ms)
-2. **TTL 支持**: 原生支持过期时间
-3. **数据结构**: String, Hash, Set 等
-4. **原子操作**: 配对码验证的原子性
-5. **持久化**: RDB + AOF 双重保障
+1. **In-Memory Storage**: Pairing codes require fast access (< 1ms)
+2. **TTL Support**: Native expiration time support
+3. **Data Structures**: String, Hash, Set, etc.
+4. **Atomic Operations**: Atomic pairing code validation
+5. **Persistence**: RDB + AOF dual guarantee
 
-**为什么不用其他数据库?**
+**Why not other databases?**
 
-| 数据库 | 优点 | 缺点 | 适用性 |
-|--------|------|------|--------|
-| **PostgreSQL** | 关系型,ACID | TTL 不友好,性能较低 | ❌ 不适合 |
-| **MongoDB** | 文档型,灵活 | TTL 索引性能不如 Redis | ⚠️ 可用但非最优 |
-| **Memcached** | 高性能 | 不支持持久化,数据结构简单 | ❌ 不适合 |
-| **Etcd** | 分布式一致性 | 性能较低,复杂度高 | ❌ 不适合 |
+| Database    | Pros                 | Cons                          | Suitability |
+|-------------|----------------------|-------------------------------|-------------|
+| **PostgreSQL** | Relational, ACID   | TTL not friendly, lower performance | ❌ Not suitable |
+| **MongoDB** | Document-based, flexible | TTL index performance worse than Redis | ⚠️ Usable but not optimal |
+| **Memcached** | High performance    | No persistence, simple data structures | ❌ Not suitable |
+| **Etcd** | Distributed consistency | Lower performance, higher complexity | ❌ Not suitable |
 
-**Redis 配置**:
+**Redis Configuration:**
 
 ```bash
 # redis.conf
@@ -100,25 +100,25 @@ appendonly yes
 appendfsync everysec
 ```
 
-### 包管理: pnpm
+### Package Manager: pnpm
 
-**对比 npm/yarn**:
+**Comparison with npm/yarn:**
 
-| 特性 | npm | yarn | pnpm |
-|------|-----|------|------|
-| 安装速度 | 慢 | 快 | 最快 |
-| 磁盘空间 | 多 | 多 | 少 (硬链接) |
-| 幽灵依赖 | ❌ 有 | ❌ 有 | ✅ 无 |
-| Monorepo | ⚠️ Workspaces | ⚠️ Workspaces | ✅ 原生支持 |
+| Feature          | npm  | yarn | pnpm           |
+|-----------------|------|------|----------------|
+| Install Speed   | Slow | Fast | Fastest        |
+| Disk Space      | High | High | Low (hard links) |
+| Phantom Deps    | ❌ Yes | ❌ Yes | ✅ None      |
+| Monorepo        | ⚠️ Workspaces | ⚠️ Workspaces | ✅ Native support |
 
-**选择 pnpm 的原因**:
+**Why pnpm?**
 
-1. **磁盘效率**: 硬链接,节省 70% 空间
-2. **安装速度**: 比 npm 快 2-3 倍
-3. **严格依赖**: 避免幽灵依赖问题
-4. **Monorepo**: 原生支持 workspace
+1. **Disk Efficiency**: Hard links, saves 70% space
+2. **Install Speed**: 2-3x faster than npm
+3. **Strict Dependencies**: Avoids phantom dependency issues
+4. **Monorepo**: Native workspace support
 
-**Workspace 配置**:
+**Workspace Configuration:**
 
 ```yaml
 # pnpm-workspace.yaml
@@ -126,18 +126,18 @@ packages:
   - 'packages/*'
 ```
 
-## 开发工具
+## Development Tools
 
-### 测试框架: Jest + Supertest
+### Testing Framework: Jest + Supertest
 
-**选择理由**:
+**Why Jest?**
 
-1. **零配置**: 开箱即用
-2. **快照测试**: API 响应快照
-3. **覆盖率**: 内置覆盖率报告
-4. **生态**: 丰富的断言库
+1. **Zero Configuration**: Works out of the box
+2. **Snapshot Testing**: API response snapshots
+3. **Coverage**: Built-in coverage reports
+4. **Ecosystem**: Rich assertion libraries
 
-**测试结构**:
+**Test Structure:**
 
 ```
 packages/gateway/
@@ -149,22 +149,22 @@ packages/gateway/
     └── e2e/
 ```
 
-**测试命令**:
+**Test Commands:**
 
 ```bash
-# 单元测试
+# Unit tests
 pnpm test
 
-# 覆盖率
+# Coverage
 pnpm test --coverage
 
-# 监听模式
+# Watch mode
 pnpm test --watch
 ```
 
-### 代码规范: ESLint + Prettier
+### Code Standards: ESLint + Prettier
 
-**ESLint 配置**:
+**ESLint Configuration:**
 
 ```javascript
 // .eslintrc.js
@@ -181,7 +181,7 @@ module.exports = {
 }
 ```
 
-**Prettier 配置**:
+**Prettier Configuration:**
 
 ```json
 {
@@ -192,27 +192,27 @@ module.exports = {
 }
 ```
 
-### 构建工具: tsx / tsup
+### Build Tools: tsx / tsup
 
-**开发环境**:
+**Development:**
 
 ```bash
-# tsx - TypeScript 执行器
+# tsx - TypeScript executor
 tsx watch src/index.ts
 ```
 
-**生产构建**:
+**Production Build:**
 
 ```bash
-# tsup - 零配置打包器
+# tsup - Zero-config bundler
 tsup src/index.ts --format cjs,esm --dts
 ```
 
-## 部署工具
+## Deployment Tools
 
-### 容器化: Docker
+### Containerization: Docker
 
-**多阶段构建**:
+**Multi-stage Build:**
 
 ```dockerfile
 # Builder
@@ -231,9 +231,9 @@ EXPOSE 3000
 CMD ["node", "dist/index.js"]
 ```
 
-### 进程管理: PM2
+### Process Manager: PM2
 
-**集群模式**:
+**Cluster Mode:**
 
 ```javascript
 // ecosystem.config.js
@@ -247,9 +247,9 @@ module.exports = {
 }
 ```
 
-## 监控工具
+## Monitoring Tools
 
-### 日志: Winston
+### Logging: Winston
 
 ```typescript
 import winston from 'winston'
@@ -264,7 +264,7 @@ const logger = winston.createLogger({
 })
 ```
 
-### 指标: Prometheus
+### Metrics: Prometheus
 
 ```typescript
 import client from 'prom-client'
@@ -279,18 +279,9 @@ const httpRequestDuration = new client.Histogram({
 })
 ```
 
-### 追踪: OpenTelemetry
+## Helper Libraries
 
-```typescript
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
-
-const provider = new NodeTracerProvider()
-provider.register()
-```
-
-## 辅助库
-
-### 验证: Zod
+### Validation: Zod
 
 ```typescript
 import { z } from 'zod'
@@ -304,7 +295,7 @@ const registerSchema = z.object({
 type RegisterRequest = z.infer<typeof registerSchema>
 ```
 
-### HTTP 客户端: Axios
+### HTTP Client: Axios
 
 ```typescript
 import axios from 'axios'
@@ -323,86 +314,8 @@ import { nanoid } from 'nanoid'
 const agentId = `agent-${nanoid(12)}`
 ```
 
-## 云服务选型
+## Related Documentation
 
-### 托管 Redis
-
-| 服务商 | 产品 | 价格 | 性能 |
-|--------|------|------|------|
-| **Railway** | Redis | $5/月 | 好 |
-| **Upstash** | Redis | 按使用计费 | 好 |
-| **Redis Cloud** | Redis | 有免费层 | 优秀 |
-| **AWS** | ElastiCache | $15+/月 | 优秀 |
-
-**推荐**: Railway Redis (开发) / Redis Cloud (生产)
-
-### 托管 Node.js
-
-| 服务商 | 特点 | 价格 |
-|--------|------|------|
-| **Railway** | 简单易用,快速部署 | $5/月起 |
-| **Fly.io** | 边缘部署,低延迟 | $3/月起 |
-| **Vercel** | Serverless,自动扩缩 | 免费层可用 |
-| **Render** | 免费 SSL,自动部署 | $7/月起 |
-
-**推荐**: Railway (开发) / Fly.io (生产)
-
-## 性能优化工具
-
-### 负载测试: autocannon
-
-```bash
-# 安装
-npm install -g autocannon
-
-# 测试
-autocannon -c 100 -d 30 http://localhost:3000/health
-```
-
-### 内存分析: clinic
-
-```bash
-# 安装
-npm install -g clinic
-
-# 分析
-clinic doctor -- node dist/index.js
-```
-
-### 火焰图: 0x
-
-```bash
-# 安装
-npm install -g 0x
-
-# 生成火焰图
-0x -o dist/index.js
-```
-
-## 安全工具
-
-### 依赖审计: npm audit
-
-```bash
-# 检查漏洞
-pnpm audit
-
-# 自动修复
-pnpm audit fix
-```
-
-### 密钥扫描: git-secrets
-
-```bash
-# 安装
-brew install git-secrets
-
-# 扫描
-git secrets --scan
-```
-
-## 相关文档
-
-- [架构设计](/technical/architecture) - 系统架构说明
-- [安全设计](/technical/security) - 安全机制详解
-- [部署指南](/guide/deployment) - 生产环境部署
+- [Architecture](/technical/architecture) - System architecture explanation
+- [Security](/technical/security) - Security mechanism details
+- [Deployment Guide](/guide/deployment) - Production environment deployment

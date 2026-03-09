@@ -1,86 +1,88 @@
-# 简介
+# Introduction
 
-欢迎使用 LinkGate!
+Welcome to LinkGate!
 
-## 什么是 LinkGate?
+## What is LinkGate?
 
-LinkGate 是一个**公益性质**的设备配对网关系统,用于本地电脑/服务器 Agent 与移动终端 APP 的安全配对连接。
+LinkGate is a **public-benefit** device pairing gateway system designed for secure pairing connections between local computer/server Agents and mobile terminal APPs.
 
-### 核心特性
+### Key Features
 
-- ✅ **临时性**: 配对完成后网关自动删除临时信息
-- ✅ **公益性质**: 免费开放,低资源消耗
-- ✅ **自动重连**: Agent 断线后自动重新注册
-- ✅ **简单易用**: 零配置,一条命令即可启动
-- ✅ **隐私优先**: 不持久化敏感数据,配对即焚
+- ✅ **Ephemeral**: Temporary information is automatically deleted after pairing
+- ✅ **Public Benefit**: Free and open source, low resource consumption
+- ✅ **Auto-Reconnect**: Agents automatically re-register after disconnection
+- ✅ **Easy to Use**: Zero configuration, start with a single command
+- ✅ **Privacy First**: No persistent sensitive data, burn after pairing
 
-## 使用场景
+## Use Cases
 
-### 1. 本地开发环境远程访问
+### 1. Remote Access to Local Development
 
-将本地开发服务器暴露给移动设备进行测试:
+Expose local development servers to mobile devices for testing:
 
 ```bash
-# 1. 启动 Agent
+# 1. Start Agent
 cd packages/agent && pnpm run dev register -g https://gateway.example.com -p 3000
 
-# 2. 获取配对码
-# 配对码: 847291
+# 2. Get pairing code
+# Pairing code: 847291
 
-# 3. 在移动设备上配对
-# 使用配对码完成连接
+# 3. Pair on mobile device
+# Use the pairing code to complete connection
 ```
 
-### 2. IoT 设备配对
+### 2. IoT Device Pairing
 
-为智能家居、工业设备等提供安全的配对机制:
+Provide secure pairing mechanism for smart home and industrial devices:
 
 ```typescript
-// 设备端
+// Device side
 const agent = new Agent({
   gateway: 'https://gateway.example.com',
   port: 8080
 })
 
 const code = await agent.register()
-console.log('配对码:', code)
+console.log('Pairing code:', code)
 ```
 
-### 3. 临时协作会话
+### 3. Temporary Collaboration Sessions
 
-创建临时的点对点连接,无需暴露内网:
+Create temporary peer-to-peer connections without exposing internal network:
 
-- 远程桌面协助
-- 文件传输
-- 实时协作工具
+- Remote desktop assistance
+- File transfer
+- Real-time collaboration tools
 
-## 架构概览
+## Architecture Overview
 
 ```
 ┌─────────────┐          ┌──────────────┐          ┌─────────────┐
 │   Agent     │◄────────►│   Gateway    │◄────────►│  Mobile App │
-│  (本地服务)  │   注册    │  (信令服务器) │   配对    │  (移动设备)  │
+│(Local Server)│ Register │(Signaling    │  Pair    │(Mobile Device)│
+│             │          │   Server)    │          │             │
 └─────────────┘          └──────────────┘          └─────────────┘
       ▲                         │                         ▲
       │                         ▼                         │
       │                   ┌──────────┐                    │
       └───────────────────┤  Redis   ├───────────────────┘
-           心跳/状态       └──────────┘      临时存储
+           Heartbeat      └──────────┘      Temporary
+           Status           Storage
 ```
 
-## 快速导航
+## Quick Navigation
 
-- [快速开始](/guide/getting-started) - 5分钟上手
-- [安装指南](/guide/installation) - 详细安装步骤
-- [API 文档](/guide/api) - 完整 API 参考
-- [架构设计](/technical/architecture) - 技术架构说明
+- [Quick Start](/guide/getting-started) - Get started in 5 minutes
+- [Installation Guide](/guide/installation) - Detailed installation steps
+- [API Documentation](/guide/api) - Complete API reference
+- [Architecture](/technical/architecture) - Technical architecture
 
-## 社区与支持
+## Community & Support
 
-- 💬 [GitHub Discussions](https://github.com/7788ken/linkgate/discussions) - 问题讨论
-- 🐛 [Issue Tracker](https://github.com/7788ken/linkgate/issues) - 问题反馈
-- 📖 [文档仓库](https://github.com/7788ken/linkgate) - 文档贡献
+- 💬 [GitHub Discussions](https://github.com/7788ken/linkgate/discussions) - Q&A
+- 🐛 [Issue Tracker](https://github.com/7788ken/linkgate/issues) - Bug reports
+- 📖 [Documentation Repo](https://github.com/7788ken/linkgate) - Contribute
 
-## 许可证
+## License
 
-LinkGate 基于 MIT 许可证开源。
+LinkGate is open-sourced under the MIT License.

@@ -1,10 +1,10 @@
-# 架构设计
+# Architecture Design
 
-本文档介绍 LinkGate 的系统架构和技术设计。
+This document introduces LinkGate's system architecture and technical design.
 
-## 系统架构
+## System Architecture
 
-### 整体架构
+### Overall Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -26,14 +26,14 @@
                             │
                     ┌───────▼────────┐
                     │  Redis Cluster │
-                    │   (主从复制)    │
+                    │   (Master-Slave)│
                     └───────┬────────┘
                             │
                 ┌───────────┴───────────┐
                 │                       │
           ┌─────▼─────┐           ┌────▼─────┐
           │  Agent 1  │           │ Agent 2  │
-          │ (内网服务) │           │(内网服务) │
+          │ (Intranet)│           │(Intranet)│
           └─────┬─────┘           └────┬─────┘
                 │                       │
           ┌─────▼─────┐           ┌────▼─────┐
@@ -41,28 +41,28 @@
           └───────────┘           └──────────┘
 ```
 
-### 组件职责
+### Component Responsibilities
 
-| 组件 | 职责 | 技术栈 |
-|------|------|--------|
-| **Load Balancer** | SSL 终止、负载均衡、速率限制 | Nginx |
-| **Gateway** | 配对码管理、Agent 注册、心跳检测 | Fastify + TypeScript |
-| **Redis** | 临时数据存储、会话管理、分布式锁 | Redis 7 |
-| **Agent** | 本地服务代理、心跳上报、自动重连 | Node.js + TypeScript |
+| Component | Responsibility | Tech Stack |
+|-----------|---------------|------------|
+| **Load Balancer** | SSL termination, load balancing, rate limiting | Nginx |
+| **Gateway** | Pairing code management, Agent registration, heartbeat detection | Fastify + TypeScript |
+| **Redis** | Temporary data storage, session management, distributed locks | Redis 7 |
+| **Agent** | Local service proxy, heartbeat reporting, auto-reconnect | Node.js + TypeScript |
 
-## 核心流程
+## Core Flows
 
-### 1. Agent 注册流程
+### 1. Agent Registration Flow
 
 ```typescript
-// 时序图
+// Sequence diagram
 Agent -> Gateway: POST /api/agent/register
     {
       agent_id: "agent-abc123",
       endpoint: "http://192.168.1.100:8080"
     }
 
-Gateway -> Redis: 存储Agent信息
+Gateway -> Redis: Store Agent info
     SET agent:agent-abc123 {
       endpoint: "http://192.168.1.100:8080",
       status: "online",
@@ -70,11 +70,11 @@ Gateway -> Redis: 存储Agent信息
     }
     EXPIRE agent:agent-abc123 600
 
-Gateway -> Redis: 生成配对码
+Gateway -> Redis: Generate pairing code
     SET pairing:847291 agent-abc123
     EXPIRE pairing:847291 300
 
-Gateway -> Agent: 返回配对码
+Gateway -> Agent: Return pairing code
     {
       pairing_code: "847291",
       expires_at: "2026-03-09T00:05:00Z",
@@ -82,7 +82,7 @@ Gateway -> Agent: 返回配对码
     }
 ```
 
-### 2. 配对流程
+### 2. Pairing Flow
 
 ```typescript
 Mobile App -> Gateway: POST /api/pair
@@ -91,31 +91,31 @@ Mobile App -> Gateway: POST /api/pair
       device_id: "mobile-123"
     }
 
-Gateway -> Redis: 验证配对码
+Gateway -> Redis: Validate pairing code
     GET pairing:847291
-    返回: agent-abc123
+    Return: agent-abc123
 
-Gateway -> Redis: 获取Agent信息
+Gateway -> Redis: Get Agent info
     GET agent:agent-abc123
-    返回: {
+    Return: {
       endpoint: "http://192.168.1.100:8080",
       status: "online"
     }
 
-Gateway -> Redis: 清理配对码(一次性)
+Gateway -> Redis: Clean up pairing code (one-time use)
     DEL pairing:847291
 
-Gateway -> Mobile App: 返回Agent信息
+Gateway -> Mobile App: Return Agent info
     {
       agent_id: "agent-abc123",
       endpoint: "http://192.168.1.100:8080"
     }
 
-Mobile App -> Agent: 直接通信
+Mobile App -> Agent: Direct communication
     POST http://192.168.1.100:8080/api/data
 ```
 
-### 3. 心跳流程
+### 3. Heartbeat Flow
 
 ```typescript
 Agent -> Gateway: POST /api/agent/heartbeat
@@ -124,26 +124,26 @@ Agent -> Gateway: POST /api/agent/heartbeat
       status: { cpu: "45%", memory: "512MB" }
     }
 
-Gateway -> Redis: 更新Agent状态
+Gateway -> Redis: Update Agent status
     HSET agent:agent-abc123 status "online"
     HSET agent:agent-abc123 last_heartbeat timestamp
     EXPIRE agent:agent-abc123 600
 
-Gateway -> Agent: 返回确认
+Gateway -> Agent: Return confirmation
     {
       success: true,
       next_heartbeat: 60
     }
 ```
 
-## 数据模型
+## Data Model
 
-### Redis 数据结构
+### Redis Data Structures
 
-#### Agent 信息
+#### Agent Information
 
 ```redis
-# Hash - Agent 基本信息
+# Hash - Agent basic information
 agent:{agent_id}
   - agent_id: string
   - endpoint: string
@@ -152,50 +152,30 @@ agent:{agent_id}
   - last_heartbeat: timestamp
   - metadata: json
 
-# TTL: 600 秒 (10分钟,根据心跳自动续期)
+# TTL: 600 seconds (10 minutes, auto-renewed by heartbeat)
 ```
 
-#### 配对码映射
+#### Pairing Code Mapping
 
 ```redis
-# String - 配对码到 Agent ID 的映射
+# String - Pairing code to Agent ID mapping
 pairing:{code} = agent_id
 
-# TTL: 300 秒 (5分钟)
+# TTL: 300 seconds (5 minutes)
 ```
 
-#### 配对码索引
-
-```redis
-# Set - Agent 的所有配对码
-agent_pairings:{agent_id} = [code1, code2, ...]
-
-# TTL: 跟随 Agent TTL
-```
-
-#### 统计信息
-
-```redis
-# HyperLogLog - 活跃 Agent 数
-active_agents:count
-
-# Sorted Set - Agent 心跳时间排行
-agent_heartbeats
-  {agent_id} => timestamp
-```
-
-## 技术选型
+## Tech Stack
 
 ### Gateway - Fastify
 
-**选择理由**:
+**Selection Rationale:**
 
-1. **高性能**: 比 Express 快 2 倍
-2. **低开销**: 请求处理时间 < 1ms
-3. **TypeScript**: 原生支持,类型安全
-4. **插件生态**: 丰富的插件系统
+1. **High Performance**: 2x faster than Express
+2. **Low Overhead**: Request processing time < 1ms
+3. **TypeScript**: Native support, type-safe
+4. **Plugin Ecosystem**: Rich plugin system
 
-**性能对比**:
+**Performance Comparison:**
 
 ```
 Fastify:  76,835 req/sec
@@ -205,253 +185,25 @@ Hapi:     31,825 req/sec
 
 ### Redis
 
-**选择理由**:
+**Selection Rationale:**
 
-1. **内存存储**: 配对码和会话数据需要快速访问
-2. **TTL 支持**: 自动过期临时数据
-3. **原子操作**: 配对码生成和验证的原子性
-4. **高可用**: 主从复制和 Cluster 模式
-
-**为什么不用其他数据库?**
-
-- **MySQL/PostgreSQL**: 关系型数据库不适合临时数据
-- **MongoDB**: 文档型数据库,但 TTL 不如 Redis 高效
-- **Memcached**: 不支持持久化和复杂数据结构
+1. **In-memory Storage**: Pairing codes need fast access (< 1ms)
+2. **TTL Support**: Native expiration time support
+3. **Data Structures**: String, Hash, Set, etc.
+4. **Atomic Operations**: Atomicity for pairing code validation
+5. **Persistence**: RDB + AOF dual guarantee
 
 ### TypeScript
 
-**选择理由**:
+**Selection Rationale:**
 
-1. **类型安全**: 减少运行时错误
-2. **IDE 支持**: 更好的代码补全和重构
-3. **可维护性**: 大型项目更易维护
-4. **生态**: Node.js 生态原生支持
+1. **Type Safety**: Reduces runtime errors
+2. **IDE Support**: Better code completion and refactoring
+3. **Maintainability**: Easier to maintain large projects
+4. **Ecosystem**: Native support in Node.js ecosystem
 
-## 安全设计
+## Related Documentation
 
-### 1. 配对码安全
-
-**生成算法**:
-
-```typescript
-import crypto from 'crypto'
-
-function generatePairingCode(length = 6): string {
-  // 使用加密安全的随机数生成器
-  const bytes = crypto.randomBytes(Math.ceil(length / 2))
-  const code = parseInt(bytes.toString('hex'), 16)
-
-  // 限制在指定长度
-  return (code % Math.pow(10, length)).toString().padStart(length, '0')
-}
-```
-
-**安全特性**:
-
-- 加密安全随机数
-- 6 位数字,熵 = log2(10^6) ≈ 19.9 bits
-- 一次性使用,防止重放攻击
-- 5 分钟过期,限制攻击窗口
-
-### 2. 传输安全
-
-**HTTPS 强制**:
-
-```typescript
-// 重定向 HTTP 到 HTTPS
-app.use((req, res, next) => {
-  if (req.protocol === 'http' && process.env.NODE_ENV === 'production') {
-    return res.redirect(301, `https://${req.headers.host}${req.url}`)
-  }
-  next()
-})
-```
-
-**HSTS**:
-
-```typescript
-app.use((req, res, next) => {
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
-  next()
-})
-```
-
-### 3. 速率限制
-
-**分布式速率限制**:
-
-```typescript
-import RedisStore from 'rate-limit-redis'
-
-const limiter = rateLimit({
-  store: new RedisStore({
-    client: redisClient,
-    prefix: 'rl:'
-  }),
-  windowMs: 60 * 1000, // 1 分钟
-  max: 100, // 最多 100 次请求
-  skip: (req) => {
-    // 内网 IP 跳过速率限制
-    return isPrivateIP(req.ip)
-  }
-})
-```
-
-### 4. 输入验证
-
-**Schema 验证**:
-
-```typescript
-import { z } from 'zod'
-
-const registerSchema = z.object({
-  agent_id: z.string().min(1).max(100),
-  endpoint: z.string().url(),
-  metadata: z.record(z.any()).optional()
-})
-
-app.post('/api/agent/register', async (req, reply) => {
-  const body = registerSchema.parse(req.body)
-  // ...
-})
-```
-
-## 可扩展性
-
-### 水平扩展
-
-**Gateway 无状态**:
-
-```yaml
-# docker-compose.scale.yml
-services:
-  gateway:
-    deploy:
-      replicas: 5
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-```
-
-**Redis Cluster**:
-
-```bash
-# 6 节点 Redis Cluster (3 主 3 从)
-redis-cli --cluster create \
-  10.0.0.1:6379 \
-  10.0.0.2:6379 \
-  10.0.0.3:6379 \
-  10.0.0.4:6379 \
-  10.0.0.5:6379 \
-  10.0.0.6:6379 \
-  --cluster-replicas 1
-```
-
-### 性能基准
-
-**单实例性能**:
-
-- 并发连接: 10,000
-- 请求/秒: 50,000+
-- 延迟(P99): < 20ms
-
-**集群性能**:
-
-- 3 节点集群: 150,000+ req/sec
-- 5 节点集群: 250,000+ req/sec
-
-## 容错设计
-
-### 1. Agent 自动重连
-
-```typescript
-class Agent {
-  private reconnectAttempts = 0
-  private maxReconnectAttempts = 5
-
-  async heartbeat() {
-    try {
-      await this.sendHeartbeat()
-      this.reconnectAttempts = 0
-    } catch (error) {
-      this.reconnectAttempts++
-
-      if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-        // 超过最大重试次数,重新注册
-        await this.register()
-        this.reconnectAttempts = 0
-      } else {
-        // 指数退避重试
-        const delay = Math.pow(2, this.reconnectAttempts) * 1000
-        await sleep(delay)
-      }
-    }
-  }
-}
-```
-
-### 2. Redis 故障转移
-
-**Sentinel 模式**:
-
-```javascript
-const redis = new Redis({
-  sentinels: [
-    { host: '10.0.0.1', port: 26379 },
-    { host: '10.0.0.2', port: 26379 },
-    { host: '10.0.0.3', port: 26379 }
-  ],
-  name: 'mymaster'
-})
-```
-
-### 3. Gateway 健康检查
-
-```typescript
-app.get('/health', async (req, reply) => {
-  const checks = {
-    redis: await checkRedis(),
-    memory: process.memoryUsage().heapUsed < 1024 * 1024 * 1024, // < 1GB
-    cpu: process.cpuUsage().user < 80 // CPU < 80%
-  }
-
-  const isHealthy = Object.values(checks).every(Boolean)
-
-  reply.code(isHealthy ? 200 : 503)
-  return { status: isHealthy ? 'ok' : 'degraded', checks }
-})
-```
-
-## 未来规划
-
-### Phase 1: MVP (当前)
-
-- ✅ HTTP API
-- ✅ Redis 临时存储
-- ✅ Agent CLI
-
-### Phase 2: 增强功能
-
-- ✅ WebSocket 实时通信
-- ✅ 心跳机制
-- ✅ QR 码支持
-
-### Phase 3: P2P 优化
-
-- 🔄 NAT 穿透 (STUN/TURN)
-- 🔄 WebRTC 集成
-- 🔄 E2EE 加密
-
-### Phase 4: 企业功能
-
-- 📋 多租户支持
-- 📋 RBAC 权限控制
-- 📋 审计日志
-- 📋 自定义域名
-
-## 相关文档
-
-- [技术选型](/technical/stack) - 详细的技术选型说明
-- [安全设计](/technical/security) - 安全机制详解
-- [API 文档](/guide/api) - API 接口文档
+- [Tech Stack](/technical/stack) - Detailed technology selection explanation
+- [Security Design](/technical/security) - Security mechanism details
+- [API Documentation](/guide/api) - API interface documentation
