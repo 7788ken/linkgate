@@ -54,11 +54,6 @@ jobs:
       - name: Build website
         run: cd packages/website && pnpm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          enablement: true  # 自动启用 Pages
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
