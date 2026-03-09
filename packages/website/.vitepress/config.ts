@@ -191,7 +191,17 @@ export default defineConfig({
 
     // 搜索
     search: {
-      provider: 'local'
+      provider: 'local',
+      options: {
+        // 为英文配置独立的搜索
+        miniSearch: {
+          searchOptions: {
+            fuzzy: 0.2,
+            prefix: true,
+            boost: { title: 4, text: 2, titles: 1 }
+          }
+        }
+      }
     }
   },
 
