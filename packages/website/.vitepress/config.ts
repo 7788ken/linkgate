@@ -6,6 +6,9 @@ export default defineConfig({
   title: 'LinkGate',
   description: '轻量级、一次性的设备配对信令服务',
 
+  // GitHub Pages 部署需要设置 base
+  base: process.env.NODE_ENV === 'production' ? '/linkgate/' : '/',
+
   // 主题配置
   themeConfig: {
     logo: '/logo.svg',
