@@ -60,7 +60,7 @@ Content-Type: application/json
   "success": true,
   "data": {
     "pairing_code": "847291",
-    "expires_at": "2024-01-01T00:05:00.000Z",
+    "expires_at": "2026-03-09T00:05:00.000Z",
     "ttl": 300
   }
 }
@@ -125,7 +125,7 @@ Content-Type: application/json
     "metadata": {
       "name": "Development Server"
     },
-    "paired_at": "2024-01-01T00:00:00.000Z"
+    "paired_at": "2026-03-09T00:00:00.000Z"
   }
 }
 ```
@@ -176,7 +176,7 @@ curl http://localhost:3000/api/pair/847291
   "data": {
     "pairing_code": "847291",
     "agent_id": "agent-abc123",
-    "expires_at": "2024-01-01T00:05:00.000Z",
+    "expires_at": "2026-03-09T00:05:00.000Z",
     "remaining_seconds": 240,
     "is_valid": true
   }

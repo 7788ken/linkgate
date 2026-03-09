@@ -37,7 +37,7 @@ curl http://localhost:3000/health
 ```json
 {
   "status": "ok",
-  "timestamp": "2024-01-01T00:00:00.000Z",
+  "timestamp": "2026-03-09T00:00:00.000Z",
   "uptime": 3600,
   "version": "0.2.0"
 }
@@ -87,7 +87,7 @@ curl -X POST http://localhost:3000/api/agent/register \
   "success": true,
   "data": {
     "pairing_code": "847291",
-    "expires_at": "2024-01-01T00:05:00.000Z",
+    "expires_at": "2026-03-09T00:05:00.000Z",
     "ttl": 300
   }
 }
@@ -171,8 +171,8 @@ curl http://localhost:3000/api/agent/agent-abc123
     "agent_id": "agent-abc123",
     "endpoint": "http://192.168.1.100:8080",
     "status": "online",
-    "last_heartbeat": "2024-01-01T00:00:00.000Z",
-    "registered_at": "2024-01-01T00:00:00.000Z",
+    "last_heartbeat": "2026-03-09T00:00:00.000Z",
+    "registered_at": "2026-03-09T00:00:00.000Z",
     "metadata": {
       "name": "My Development Server",
       "version": "1.0.0"
@@ -256,7 +256,7 @@ curl -X POST http://localhost:3000/api/pair \
   "data": {
     "agent_id": "agent-abc123",
     "endpoint": "http://192.168.1.100:8080",
-    "paired_at": "2024-01-01T00:00:00.000Z",
+    "paired_at": "2026-03-09T00:00:00.000Z",
     "message": "配对成功"
   }
 }
@@ -290,7 +290,7 @@ curl http://localhost:3000/api/pair/847291
   "data": {
     "pairing_code": "847291",
     "agent_id": "agent-abc123",
-    "expires_at": "2024-01-01T00:05:00.000Z",
+    "expires_at": "2026-03-09T00:05:00.000Z",
     "remaining_seconds": 240,
     "is_valid": true
   }

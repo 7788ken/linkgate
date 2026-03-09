@@ -167,7 +167,7 @@ pnpm run dev
 ```json
 {
   "status": "ok",
-  "timestamp": "2024-01-01T00:00:00.000Z",
+  "timestamp": "2026-03-09T00:00:00.000Z",
   "uptime": 10
 }
 ```

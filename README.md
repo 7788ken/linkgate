@@ -1,51 +1,51 @@
 # LinkGate
 
-> 轻量级、一次性的设备配对信令服务
+> Lightweight, Ephemeral Device Pairing Signaling Service
 
-**[English](./docs/en/README.md)** | **[中文](./docs/zh/README.md)**
+**[English](./docs/en/README.md)** | **[中文](./docs/zh/README.md)** | **[Documentation](https://7788ken.github.io/linkgate/)**
 
-## 项目简介
+## Overview
 
-LinkGate 是一个公益性质的设备配对网关系统,用于本地电脑/服务器 Agent 与移动终端 APP 的安全配对连接。
+LinkGate is a public-benefit device pairing gateway system designed for secure pairing connections between local computer/server Agents and mobile terminal APPs.
 
-### 核心特性
+### Key Features
 
-- ✅ **临时性**: 配对完成后网关自动删除临时信息
-- ✅ **公益性质**: 免费开放,低资源消耗
-- ✅ **自动重连**: Agent 断线后自动重新注册
-- ✅ **简单易用**: 零配置,一条命令即可启动
-- ✅ **隐私优先**: 不持久化敏感数据,配对即焚
+- ✅ **Ephemeral**: Temporary information is automatically deleted after pairing
+- ✅ **Public Benefit**: Free and open source with low resource consumption
+- ✅ **Auto-Reconnect**: Agents automatically re-register after disconnection
+- ✅ **Easy to Use**: Zero configuration, start with a single command
+- ✅ **Privacy First**: No persistent sensitive data, burn after pairing
 
-## 快速开始
+## Quick Start
 
-👉 **[5 分钟快速启动指南](./QUICKSTART.md)**
+👉 **[5-Minute Quick Start Guide](./QUICKSTART.md)**
 
-### 1. 安装依赖
+### 1. Install Dependencies
 
 ```bash
-# 安装 pnpm (如果还没安装)
+# Install pnpm (if not already installed)
 npm install -g pnpm
 
-# 安装项目依赖
+# Install project dependencies
 pnpm install
 ```
 
-### 2. 启动服务
+### 2. Start Services
 
 ```bash
-# 启动 Redis
+# Start Redis
 docker-compose up -d redis
 
-# 启动 Gateway (新终端)
+# Start Gateway (new terminal)
 cd packages/gateway && pnpm run dev
 
-# 注册 Agent (新终端)
+# Register Agent (new terminal)
 cd packages/agent && pnpm run dev register -g http://localhost:3000 -p 8080
 ```
 
-### 3. 配对连接
+### 3. Pairing Connection
 
-获取配对码后,使用 API 或 SDK 进行配对:
+After obtaining the pairing code, use API or SDK for pairing:
 
 ```bash
 curl -X POST http://localhost:3000/api/pair \
@@ -53,95 +53,103 @@ curl -X POST http://localhost:3000/api/pair \
   -d '{"pairing_code":"847291","device_id":"mobile-123"}'
 ```
 
-## 文档
+## Documentation
 
-- [完整文档 (中文)](./docs/zh/README.md)
-- [Full Documentation (English)](./docs/en/README.md)
-- [技术架构](./docs/zh/ARCHITECTURE.md) (待创建)
-- [API 文档](./docs/zh/API.md) (待创建)
-- [部署指南](./docs/zh/DEPLOYMENT.md) (待创建)
+- **[Official Website](https://7788ken.github.io/linkgate/)** - Complete documentation
+- [English Documentation](./docs/en/README.md) - Full docs in English
+- [中文文档](./docs/zh/README.md) - 完整中文文档
+- [API Reference](https://7788ken.github.io/linkgate/guide/api.html) - API documentation
+- [Deployment Guide](https://7788ken.github.io/linkgate/guide/deployment.html) - Production deployment
 
-## 项目状态
+## Project Status
 
-✅ **MVP 阶段完成** - Gateway API 和 Agent CLI 已可用
+✅ **MVP Complete** - Gateway API and Agent CLI are production-ready
 
-### 已实现功能
+### Implemented Features
 
-- ✅ Gateway HTTP API (注册/配对/心跳/健康检查)
-- ✅ Redis 临时存储 (TTL 自动过期)
-- ✅ Agent CLI 工具 (register/heartbeat/status/unregister)
-- ✅ 配对码机制 (6 位数字,一次性使用)
-- ✅ 单元测试框架
-- ✅ Docker 部署配置
-- ✅ Monorepo 架构 (pnpm workspaces)
+- ✅ Gateway HTTP API (register/pair/heartbeat/health check)
+- ✅ Redis temporary storage (TTL auto-expiration)
+- ✅ Agent CLI tool (register/heartbeat/status/unregister)
+- ✅ Pairing code mechanism (6-digit, one-time use)
+- ✅ Unit test framework
+- ✅ Docker deployment configuration
+- ✅ Monorepo architecture (pnpm workspaces)
+- ✅ WebSocket real-time communication
+- ✅ QR code generation
 
-## 开发路线图
+## Roadmap
 
-### 阶段 1: MVP (2-3 周)
-- 基础 HTTP API
-- Redis 临时存储
-- Agent CLI 工具
+### Phase 1: MVP ✅ (Completed)
+- Basic HTTP API
+- Redis temporary storage
+- Agent CLI tool
 
-### 阶段 2: 增强功能 (2-4 周)
-- WebSocket 实时通信
-- 心跳机制
-- QR 码支持
+### Phase 2: Enhanced Features ✅ (Completed)
+- WebSocket real-time communication
+- Heartbeat mechanism
+- QR code support
 
-### 阶段 3: P2P 优化 (1-2 个月)
-- NAT 穿透
-- STUN/TURN 集成
-- E2EE 加密
+### Phase 3: P2P Optimization (Planned)
+- NAT traversal
+- STUN/TURN integration
+- E2EE encryption
 
-详见 [完整实施计划](./docs/zh/README.md#实施计划)
+See [Implementation Plan](./docs/en/README.md#implementation-plan) for details
 
-## 技术栈
+## Tech Stack
 
-### 当前实现 (MVP)
+### Current Implementation
 
-- **运行时**: Node.js 18+ (LTS)
-- **语言**: TypeScript 5.x
-- **框架**: Fastify 4.x (高性能 HTTP 服务器)
-- **数据库**: Redis (临时存储, TTL 自动过期)
-- **包管理**: pnpm workspaces
-- **测试**: Jest + Supertest
-- **代码规范**: ESLint + Prettier
-- **部署**: Docker + Docker Compose
+- **Runtime**: Node.js 18+ (LTS)
+- **Language**: TypeScript 5.x
+- **Framework**: Fastify 4.x (High-performance HTTP server)
+- **Database**: Redis (temporary storage, TTL auto-expiration)
+- **Package Manager**: pnpm workspaces
+- **Testing**: Jest + Supertest
+- **Code Standards**: ESLint + Prettier
+- **Deployment**: Docker + Docker Compose
 
-### 目录结构
+### Directory Structure
 
 ```
 linkgate/
 ├── packages/
-│   ├── gateway/     # Gateway 服务器 (Fastify + Redis)
-│   └── agent/       # Agent CLI 客户端
-├── docs/            # 文档 (zh/en)
-└── docker/          # Docker 配置
+│   ├── gateway/     # Gateway server (Fastify + Redis)
+│   ├── agent/       # Agent CLI client
+│   └── website/     # Official documentation website
+├── docs/            # Documentation (en/zh)
+└── docker/          # Docker configuration
 ```
 
-## 贡献指南
+## Contributing
 
-欢迎社区贡献!
+Community contributions are welcome!
 
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交 Pull Request
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 许可证
+## License
 
-待定 (建议使用 MIT 或 Apache 2.0)
+MIT License
 
-## 联系方式
+## Contact
 
-- 项目主页: https://github.com/linkgate/linkgate
-- 问题反馈: https://github.com/linkgate/linkgate/issues
+- **GitHub**: https://github.com/7788ken/linkgate
+- **Issues**: https://github.com/7788ken/linkgate/issues
+- **Discussions**: https://github.com/7788ken/linkgate/discussions
 
-## 致谢
+## Acknowledgments
 
-本项目受以下开源项目启发:
+This project is inspired by the following open-source projects:
 
 - [Tailscale](https://tailscale.com)
 - [FRP](https://github.com/fatedier/frp)
 - [OpenClaw](https://docs.openclaw.ai)
 - [Octelium](https://octelium.com)
+
+---
+
+**[Documentation](https://7788ken.github.io/linkgate/)** | **[GitHub](https://github.com/7788ken/linkgate)** | **[NPM](https://www.npmjs.com/package/linkgate)**

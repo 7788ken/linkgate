@@ -77,7 +77,7 @@ Gateway -> Redis: 生成配对码
 Gateway -> Agent: 返回配对码
     {
       pairing_code: "847291",
-      expires_at: "2024-01-01T00:05:00Z",
+      expires_at: "2026-03-09T00:05:00Z",
       ttl: 300
     }
 ```

@@ -3,14 +3,14 @@ layout: home
 
 hero:
   name: "LinkGate"
-  text: "轻量级设备配对信令服务"
-  tagline: 安全、临时、零配置的本地与移动设备连接方案
+  text: "Lightweight Device Pairing Service"
+  tagline: Secure, ephemeral, zero-configuration connection solution for local and mobile devices
   image:
     src: /logo.svg
     alt: LinkGate
   actions:
     - theme: brand
-      text: 快速开始
+      text: Quick Start
       link: /guide/getting-started
     - theme: alt
       text: GitHub
@@ -18,23 +18,23 @@ hero:
 
 features:
   - icon: 🔒
-    title: 隐私优先
-    details: 不持久化敏感数据,配对即焚。所有临时信息在配对完成后自动删除
+    title: Privacy First
+    details: No persistent sensitive data, burn after pairing. All temporary information is automatically deleted after pairing is complete
   - icon: ⚡
-    title: 极速配对
-    details: 6位数字配对码,一次性使用,快速完成设备连接
+    title: Fast Pairing
+    details: 6-digit pairing code, one-time use, quickly complete device connection
   - icon: 🔄
-    title: 自动重连
-    details: Agent断线后自动重新注册,保持连接稳定
+    title: Auto Reconnect
+    details: Agent automatically re-registers after disconnection, maintaining stable connections
   - icon: 🎯
-    title: 零配置
-    details: 一条命令即可启动,无需复杂配置
+    title: Zero Configuration
+    details: Start with a single command, no complex configuration needed
   - icon: 🌐
-    title: 公益性质
-    details: 免费开放,低资源消耗,可自托管
+    title: Public Service
+    details: Free and open source, low resource consumption, self-hostable
   - icon: 🚀
-    title: 现代架构
-    details: 基于 Fastify + Redis,支持 WebSocket 实时通信
+    title: Modern Architecture
+    details: Built on Fastify + Redis, supports WebSocket real-time communication
 ---
 
 <style>
