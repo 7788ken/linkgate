@@ -68,7 +68,7 @@ export default defineConfig({
         },
         footer: {
           message: 'Released under the MIT License',
-          copyright: 'Copyright © 2024-present LinkGate Team'
+          copyright: 'Copyright © 2026-present LinkGate Team'
         },
         docFooter: {
           prev: 'Previous',
@@ -153,7 +153,7 @@ export default defineConfig({
         },
         footer: {
           message: '基于 MIT 许可发布',
-          copyright: 'Copyright © 2024-present LinkGate Team'
+          copyright: 'Copyright © 2026-present LinkGate Team'
         },
         docFooter: {
           prev: '上一页',
