@@ -23,8 +23,8 @@ export default defineConfig({
       {
         text: '相关链接',
         items: [
-          { text: 'GitHub', link: 'https://github.com/linkgate/linkgate' },
-          { text: '问题反馈', link: 'https://github.com/linkgate/linkgate/issues' }
+          { text: 'GitHub', link: 'https://github.com/7788ken/linkgate' },
+          { text: '问题反馈', link: 'https://github.com/7788ken/linkgate/issues' }
         ]
       }
     ],
@@ -70,7 +70,7 @@ export default defineConfig({
 
     // 社交链接
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/linkgate/linkgate' }
+      { icon: 'github', link: 'https://github.com/7788ken/linkgate' }
     ],
 
     // 页脚
@@ -86,7 +86,7 @@ export default defineConfig({
 
     // 编辑链接
     editLink: {
-      pattern: 'https://github.com/linkgate/linkgate/edit/master/packages/website/:path',
+      pattern: 'https://github.com/7788ken/linkgate/edit/master/packages/website/:path',
       text: '在 GitHub 上编辑此页'
     }
   },

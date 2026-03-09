@@ -25,7 +25,7 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/linkgate/linkgate.git
+git clone https://github.com/7788ken/linkgate.git
 cd linkgate
 
 # 2. 安装 pnpm (如果需要)

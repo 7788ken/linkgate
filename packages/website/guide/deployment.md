@@ -51,7 +51,7 @@ redis-cli ping  # PONG
 
 ```bash
 # 克隆代码
-git clone https://github.com/linkgate/linkgate.git
+git clone https://github.com/7788ken/linkgate.git
 cd linkgate
 
 # 安装依赖

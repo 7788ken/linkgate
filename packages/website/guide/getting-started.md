@@ -14,7 +14,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/linkgate/linkgate.git
+git clone https://github.com/7788ken/linkgate.git
 cd linkgate
 ```
 
@@ -155,5 +155,5 @@ PORT=3001 pnpm run dev
 
 遇到问题? 加入社区:
 
-- [GitHub Discussions](https://github.com/linkgate/linkgate/discussions)
-- [Issue Tracker](https://github.com/linkgate/linkgate/issues)
+- [GitHub Discussions](https://github.com/7788ken/linkgate/discussions)
+- [Issue Tracker](https://github.com/7788ken/linkgate/issues)

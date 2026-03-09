@@ -633,7 +633,7 @@ scp dump.rdb linkgate-config.tar.gz user@new-server:/tmp/
 
 # 4. 新服务器上恢复
 # 安装依赖
-git clone https://github.com/linkgate/linkgate.git
+git clone https://github.com/7788ken/linkgate.git
 cd linkgate
 pnpm install
 pnpm run build
@@ -654,7 +654,7 @@ pm2 start ecosystem.config.js
 
 **A**: 是的,LinkGate 采用 MIT 许可证开源。
 
-- GitHub: https://github.com/linkgate/linkgate
+- GitHub: https://github.com/7788ken/linkgate
 - 许可证: MIT
 - 可商用: ✅
 - 可修改: ✅
@@ -676,7 +676,7 @@ pm2 start ecosystem.config.js
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 提交 Pull Request
 
-详见 [贡献指南](https://github.com/linkgate/linkgate/blob/master/CONTRIBUTING.md)
+详见 [贡献指南](https://github.com/7788ken/linkgate/blob/master/CONTRIBUTING.md)
 
 ### Q: 在哪里报告安全漏洞?
 
@@ -704,6 +704,6 @@ pm2 start ecosystem.config.js
 如果你的问题没有在这里找到答案:
 
 1. 📖 查阅[完整文档](/guide/)
-2. 💬 在 [GitHub Discussions](https://github.com/linkgate/linkgate/discussions) 提问
-3. 🐛 在 [GitHub Issues](https://github.com/linkgate/linkgate/issues) 报告问题
+2. 💬 在 [GitHub Discussions](https://github.com/7788ken/linkgate/discussions) 提问
+3. 🐛 在 [GitHub Issues](https://github.com/7788ken/linkgate/issues) 报告问题
 4. 📧 发送邮件到 support@linkgate.example.com

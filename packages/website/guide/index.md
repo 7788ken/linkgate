@@ -77,9 +77,9 @@ console.log('配对码:', code)
 
 ## 社区与支持
 
-- 💬 [GitHub Discussions](https://github.com/linkgate/linkgate/discussions) - 问题讨论
-- 🐛 [Issue Tracker](https://github.com/linkgate/linkgate/issues) - 问题反馈
-- 📖 [文档仓库](https://github.com/linkgate/linkgate) - 文档贡献
+- 💬 [GitHub Discussions](https://github.com/7788ken/linkgate/discussions) - 问题讨论
+- 🐛 [Issue Tracker](https://github.com/7788ken/linkgate/issues) - 问题反馈
+- 📖 [文档仓库](https://github.com/7788ken/linkgate) - 文档贡献
 
 ## 许可证
 

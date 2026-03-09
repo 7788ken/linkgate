@@ -14,7 +14,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: GitHub
-      link: https://github.com/linkgate/linkgate
+      link: https://github.com/7788ken/linkgate
 
 features:
   - icon: 🔒
