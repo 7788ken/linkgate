@@ -9,17 +9,21 @@ import { registerRoutes, registerWebSocketRoutes } from './api';
  * Create and configure Fastify server
  */
 export async function createServer() {
+  const isTest = process.env.NODE_ENV === 'test';
+
   const fastify = Fastify({
-    logger: {
-      level: process.env.LOG_LEVEL || 'info',
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: 'HH:MM:ss Z',
-          ignore: 'pid,hostname',
+    logger: isTest
+      ? false // Disable logging in tests
+      : {
+          level: process.env.LOG_LEVEL || 'info',
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              translateTime: 'HH:MM:ss Z',
+              ignore: 'pid,hostname',
+            },
+          },
         },
-      },
-    },
   });
 
   // Register CORS

@@ -25,32 +25,32 @@ export async function registerWebSocketRoutes(
     fastify.get<{ Querystring: WebSocketQuery }>(
       '/ws',
       { websocket: true },
-      (connection /* SocketStream */, req /* FastifyRequest */) => {
-        const query = req.query as WebSocketQuery;
+      (socket /* WebSocket */, request /* FastifyRequest */) => {
+        const query = request.query as WebSocketQuery;
 
         // Validate required parameters
         if (!query.type || !query.id) {
-          connection.socket.send(
+          socket.send(
             JSON.stringify({
               type: WSEventType.ERROR,
               payload: { message: 'Missing required parameters: type, id' },
               timestamp: Date.now(),
             })
           );
-          connection.socket.close();
+          socket.close();
           return;
         }
 
         // Validate connection type
         if (query.type !== 'agent' && query.type !== 'device') {
-          connection.socket.send(
+          socket.send(
             JSON.stringify({
               type: WSEventType.ERROR,
               payload: { message: 'Invalid connection type. Must be "agent" or "device"' },
               timestamp: Date.now(),
             })
           );
-          connection.socket.close();
+          socket.close();
           return;
         }
 
@@ -59,7 +59,7 @@ export async function registerWebSocketRoutes(
 
         // Register connection
         wsManager.addConnection({
-          socket: connection.socket,
+          socket: socket,
           type: connectionType,
           id: query.id,
           pairing_code: query.pairing_code,
@@ -78,10 +78,10 @@ export async function registerWebSocketRoutes(
           timestamp: Date.now(),
         };
 
-        connection.socket.send(JSON.stringify(connectedMessage));
+        socket.send(JSON.stringify(connectedMessage));
 
         // Handle incoming messages
-        connection.socket.on('message', (message: Buffer) => {
+        socket.on('message', (message: Buffer) => {
           try {
             const data = JSON.parse(message.toString());
 
@@ -95,7 +95,7 @@ export async function registerWebSocketRoutes(
                 timestamp: Date.now(),
               };
 
-              connection.socket.send(JSON.stringify(pongMessage));
+              socket.send(JSON.stringify(pongMessage));
               return;
             }
 
@@ -110,12 +110,12 @@ export async function registerWebSocketRoutes(
               timestamp: Date.now(),
             };
 
-            connection.socket.send(JSON.stringify(errorMessage));
+            socket.send(JSON.stringify(errorMessage));
           }
         });
 
         // Handle connection close
-        connection.socket.on('close', () => {
+        socket.on('close', () => {
           wsManager.removeConnection(connectionType, query.id);
 
           const disconnectedMessage: WebSocketMessage = {
@@ -131,7 +131,7 @@ export async function registerWebSocketRoutes(
         });
 
         // Handle errors
-        connection.socket.on('error', (error) => {
+        socket.on('error', (error: Error) => {
           fastify.log.error(error, 'WebSocket error');
           wsManager.removeConnection(connectionType, query.id);
         });

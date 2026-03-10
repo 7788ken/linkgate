@@ -1,6 +1,56 @@
 import { createServer } from '../src';
 import { FastifyInstance } from 'fastify';
 
+// Mock ioredis with inline class definition to avoid hoisting issues
+jest.mock('ioredis', () => {
+  class MockRedis {
+    private store: Map<string, { value: string; expireAt?: number }>;
+
+    constructor() {
+      this.store = new Map();
+    }
+
+    async get(key: string): Promise<string | null> {
+      const item = this.store.get(key);
+      if (!item) return null;
+
+      if (item.expireAt && Date.now() > item.expireAt) {
+        this.store.delete(key);
+        return null;
+      }
+
+      return item.value;
+    }
+
+    async set(key: string, value: string): Promise<'OK'> {
+      this.store.set(key, { value });
+      return 'OK';
+    }
+
+    async setex(key: string, seconds: number, value: string): Promise<'OK'> {
+      const expireAt = Date.now() + seconds * 1000;
+      this.store.set(key, { value, expireAt });
+      return 'OK';
+    }
+
+    async del(key: string): Promise<number> {
+      const existed = this.store.has(key);
+      this.store.delete(key);
+      return existed ? 1 : 0;
+    }
+
+    async quit(): Promise<'OK'> {
+      this.store.clear();
+      return 'OK';
+    }
+  }
+
+  return {
+    __esModule: true,
+    default: MockRedis,
+  };
+});
+
 describe('Integration Tests', () => {
   let fastify: FastifyInstance;
 
