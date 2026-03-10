@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import QRCode from 'qrcode';
-import { StorageService } from '../services';
+import { StorageService, SecurityService } from '../services';
 import { AgentRegistration, PairingRequest } from '../models';
+import { rateLimitConfigs } from '../middleware/rateLimit';
 
 interface RegisterRequest {
   Body: Omit<AgentRegistration, 'agent_id' | 'timestamp' | 'pairing_code'>;
@@ -20,7 +21,8 @@ interface HeartbeatRequest {
  */
 export async function registerRoutes(
   fastify: FastifyInstance,
-  storage: StorageService
+  storage: StorageService,
+  security: SecurityService
 ) {
   /**
    * POST /api/register - Agent registration

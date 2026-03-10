@@ -1,15 +1,18 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
+import helmet from '@fastify/helmet';
 import websocket from '@fastify/websocket';
-import { StorageService, WebSocketManager } from './services';
+import { StorageService, WebSocketManager, SecurityService } from './services';
 import { registerRoutes, registerWebSocketRoutes } from './api';
+import { configureRateLimiting } from './middleware/rateLimit';
 
 /**
  * Create and configure Fastify server
  */
 export async function createServer() {
   const isTest = process.env.NODE_ENV === 'test';
+  const isProduction = process.env.NODE_ENV === 'production';
 
   const fastify = Fastify({
     logger: isTest
@@ -26,16 +29,26 @@ export async function createServer() {
         },
   });
 
-  // Register CORS
-  await fastify.register(cors, {
-    origin: true,
+  // Register security headers with helmet
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        scriptSrc: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: !isProduction, // Disable in development for easier testing
   });
 
-  // Register rate limiting
-  await fastify.register(rateLimit, {
-    max: 100,
-    timeWindow: '1 minute',
+  // Register CORS
+  await fastify.register(cors, {
+    origin: isProduction ? false : true, // Disable CORS in production (use same-origin)
   });
+
+  // Configure rate limiting
+  await configureRateLimiting(fastify);
 
   // Register WebSocket
   await fastify.register(websocket);
@@ -44,9 +57,10 @@ export async function createServer() {
   const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
   const storage = new StorageService(redisUrl);
   const wsManager = new WebSocketManager();
+  const security = new SecurityService(storage);
 
   // Register API routes
-  await registerRoutes(fastify, storage);
+  await registerRoutes(fastify, storage, security);
 
   // Register WebSocket routes
   await registerWebSocketRoutes(fastify, wsManager);
